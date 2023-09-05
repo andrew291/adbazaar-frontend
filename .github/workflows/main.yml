@@ -46,3 +46,19 @@ jobs:
       run: |
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+
+        
+    - name: SSH into AWS EC2 instance
+      uses: appleboy/ssh-action@v0.5.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: ${{ secrets.EC2_SSH_PORT }}
+
+    - name: Deploy Docker container on AWS EC2
+      run: |
+        docker stop my-nodejs-app || true
+        docker rm my-nodejs-app || true
+        docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+        docker run -d --name my-nodejs-app -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
