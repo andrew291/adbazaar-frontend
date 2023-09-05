@@ -36,10 +36,11 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker buildx build --file Dockerfile --tag my-nodejs-app .
+        docker build -t my-nodejs-app .
         docker tag my-nodejs-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
       env:
-        DOCKER_CLI: docker
+        DOCKER_BUILDKIT: 1
+    
 
     - name: Push Docker image to Docker Hub
       run: |
